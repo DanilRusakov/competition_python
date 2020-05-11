@@ -1,0 +1,14 @@
+{% extends 'football/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+Create
+{% endblock %}
+
+{% block body %}
+    <h1>Page create</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit" value="Create" class="btn btn-primary">
+</form>
+{% endblock %}

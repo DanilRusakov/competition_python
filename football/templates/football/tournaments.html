@@ -1,0 +1,22 @@
+{% extends 'football/base.html' %}
+{% block title %}
+Tournaments
+{% endblock %}
+
+{% block body %}
+<h1>Tournaments</h1>
+<ul class="list-group">
+    {% for tournament in tournaments %}
+    <li class="list-group-item {% cycle '' 'list-group-item-secondary' %}">
+        <a href="{% url 'football:tournaments' %}{{ tournament.id }}/">
+                <span class="col-4">
+                {{tournament.title}} {{ tournament.date_time }}
+                </span>
+            <span class="col-8">
+
+            </span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

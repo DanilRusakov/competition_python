@@ -1,0 +1,115 @@
+{% extends 'football/base.html' %}
+{% load crispy_forms_tags %}
+{% load mathfilters %}
+{% block title %}
+{{ tournament.title }}
+{% endblock %}
+{% block body %}
+<h1>{{ tournament.title }}</h1>
+<div class="mb-5">
+    <div class="container">
+        <div class="row">
+
+            {% for team in teams %}
+            <div class="col" align="center">
+                {{ team.image_tag }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% if tournament.type == 'table' %}
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list"
+           aria-selected="true">Match list</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact"
+           aria-selected="false">Grid</a>
+    </li>
+</ul>
+<div class="tab-content mt-5" id="myTabContent">
+    <div class="tab-pane fade show mt-5 active" id="list" role="tabpanel" aria-labelledby="list-tab">
+        <form method="post">
+            {% csrf_token %}
+            <table class="table table-sm table-hover table-bordered table-dark">
+                <thead align="center">
+                <th scope="col">Owner</th>
+                <th scope="col">Score</th>
+                <th scope="col">Guest</th>
+                <th scope="col">Match Status</th>
+                </thead>
+                <tbody align="center">
+                {% for match in matches %}
+
+                <tr data-match="{{ match.id }}">
+                    <td>{{ match.team_1.title }}</td>
+                    <td>
+                        <div class="form-group">
+                            <input class="col-sm-2" type="number" value="{{ match.team_1_goals }}" min="0"
+                                   name="match_{{ match.id }}">
+                            -
+                            <input class="col-sm-2" type="number" value="{{ match.team_2_goals }}" min="0"
+                                   name="match_{{ match.id }}">
+                        </div>
+                    </td>
+                    <td>{{ match.team_2.title }}</td>
+                    <td>
+                        {% if match.status is 1 %}
+                        <input class="match_status" type="checkbox" name="status_{{ match.id }}" value="1"
+                               checked="checked">
+                        {% else %}
+                        <input class="match_status" type="checkbox" name="status_{{ match.id }}" value="1">
+                        {% endif %}
+                        <label>Completed</label>
+                    </td>
+                </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="mb-5">
+                <button class="btn btn-success" id="complete_matches">Complete matches</button>
+                <button class="btn btn-primary" id="update_matches" type="submit">Update</button>
+            </div>
+        </form>
+    </div>
+    <div class="tab-pane fade mt-5" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+        <table class="table table-sm table-hover table-bordered table-dark">
+            <thead align="center">
+            <th scope="col">Team</th>
+            <th scope="col">Matches</th>
+            <th scope="col">Won</th>
+            <th scope="col">Drawn</th>
+            <th scope="col">Lost</th>
+            <th scope="col"><abbr title="Goal scored">GS</abbr></th>
+            <th scope="col"><abbr title="Goal conceded">GC</abbr></th>
+            <th scope="col"><abbr title="Goal difference">GD</abbr></th>
+            <th scope="col">
+                <abbr title="Win - 3 Drawn - 1 Lost - 0">
+                    Points
+                </abbr>
+            </th>
+            </thead>
+            <tbody align="center">
+            {% for row in statistics %}
+            <tr class="{% cycle 'bg-secondary' '' %}">
+                <td align="left">{{ row.team.image_tag }}{{ row.team.title }}</td>
+                <td>{{ row.matches }}</td>
+                <td>{{ row.won }}</td>
+                <td>{{ row.drawn }}</td>
+                <td>{{ row.lost }}</td>
+                <td>{{ row.goal_scored }}</td>
+                <td>{{ row.goal_conceded }}</td>
+                <td>{{ row.goal_scored|sub:row.goal_conceded }}</td>
+                <td>{{ row.points }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
