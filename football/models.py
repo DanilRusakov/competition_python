@@ -94,19 +94,16 @@ class Match(models.Model):
     tournament = models.ForeignKey(
         Tournament,
         on_delete=models.CASCADE,
-        default=1,  # TODO SOLVE PROBLEM
     )
     team_1 = models.ForeignKey(
         Team,
         related_name='Team_1',
         on_delete=models.CASCADE,
-        default=1,
     )
     team_2 = models.ForeignKey(
         Team,
         related_name='Team_2',
         on_delete=models.CASCADE,
-        default=2,
     )
     team_1_goals = models.SmallIntegerField(
         default=0,
@@ -192,6 +189,7 @@ class TournamentTeamInfo(models.Model):
     )
 
 
+# TODO: create methods save inside models instead signals
 # SIGNALS
 # signal create matches
 def create_tournament_matches(instance, created, **kwargs):
