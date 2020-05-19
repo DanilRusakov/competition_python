@@ -67,14 +67,16 @@ def form_view(request):
     form = TournamentForm(request.POST or None)
     context = {'form': form}
     if request.POST and form.is_valid():
-        teams = form.cleaned_data.get('teams')
-        teams_list = []
-        for team in teams:
-            teams_list.append(team.id)
         tournament = Tournament()
-        tournament.teams = json.dumps(teams_list)
         tournament.type = form.cleaned_data.get('tournament_type')
         tournament.title = form.cleaned_data.get('title')
+        tournament.save()
+        teams_list = []
+        teams = form.cleaned_data.get('teams')
+        for team in teams:
+            if Team.objects.filter(pk=team.id).exists():
+                teams_list.append(Team.objects.get(pk=team.id))
+        tournament.teams_in.set(teams_list)
         tournament.save()
         return HttpResponseRedirect(reverse('football:tournaments'))
     return render(request, 'football/create_tournament.html', context)

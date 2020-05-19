@@ -68,13 +68,20 @@ class Tournament(models.Model):
 
     title = models.CharField(max_length=50, unique=True)
     info = models.TextField(null=True)
-    teams = models.TextField(blank=False, default='NULL')
+    teams_in = models.ManyToManyField(Team, )
     date_time = models.DateTimeField(default=now, blank=True)
     type = models.CharField(
         max_length=5,
         choices=TOURNAMENT_TYPES,
         default=TABLE,
     )
+
+    def save(self, *args, **kwargs):
+        print('---------')
+        print(self.title)
+        print('---------')
+        # TODO check if teams_in
+        super(Tournament, self).save(*args, *kwargs)
 
     def __str__(self):
         return f'{self.title} type:{self.type}'
@@ -193,19 +200,21 @@ class TournamentTeamInfo(models.Model):
 # SIGNALS
 # signal create matches
 def create_tournament_matches(instance, created, **kwargs):
-    if not created:
-        return
-    json_dec = json.decoder.JSONDecoder()
-    teams_ids = json_dec.decode(instance.teams)
-    teams_list = Team.objects.filter(pk__in=teams_ids)
-    for team_1 in teams_list:
-        for team_2 in teams_list:
+    # if not created:
+    #     return
+    teams_in = instance.teams_in.all()
+    print(teams_in)
+    print('----------------------------------------------------')
+    print(instance.teams_in)
+    print('----------------------------------------------------')
+    for team_1 in teams_in:
+        for team_2 in teams_in:
             if team_1.id is not team_2.id:
                 match_title = '{} vs {}'.format(team_1.title, team_2.title)
                 Match.objects.create(title=match_title, tournament=instance, team_1=team_1, team_2=team_2)
 
 
-post_save.connect(create_tournament_matches, sender=Tournament)
+# post_save.connect(create_tournament_matches, sender=Tournament)
 
 
 def create_tournament_team_info(instance, created, **kwargs):
@@ -218,6 +227,6 @@ def create_tournament_team_info(instance, created, **kwargs):
         TournamentTeamInfo.objects.create(team=team, tournament=instance)
 
 
-post_save.connect(create_tournament_team_info, sender=Tournament)
+# post_save.connect(create_tournament_team_info, sender=Tournament)
 
 
