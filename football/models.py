@@ -77,10 +77,7 @@ class Tournament(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        print('---------')
-        print(self.title)
-        print('---------')
-        # TODO check if teams_in
+        # TODO make things instead signal create_tournament_matches
         super(Tournament, self).save(*args, *kwargs)
 
     def __str__(self):
@@ -203,10 +200,7 @@ def create_tournament_matches(instance, created, **kwargs):
     # if not created:
     #     return
     teams_in = instance.teams_in.all()
-    print(teams_in)
-    print('----------------------------------------------------')
-    print(instance.teams_in)
-    print('----------------------------------------------------')
+
     for team_1 in teams_in:
         for team_2 in teams_in:
             if team_1.id is not team_2.id:
@@ -214,19 +208,17 @@ def create_tournament_matches(instance, created, **kwargs):
                 Match.objects.create(title=match_title, tournament=instance, team_1=team_1, team_2=team_2)
 
 
-# post_save.connect(create_tournament_matches, sender=Tournament)
+post_save.connect(create_tournament_matches, sender=Tournament)
 
 
 def create_tournament_team_info(instance, created, **kwargs):
-    if not created:
-        return
-    json_dec = json.decoder.JSONDecoder()
-    teams_ids = json_dec.decode(instance.teams)
-    teams_list = Team.objects.filter(pk__in=teams_ids)
-    for team in teams_list:
+    # if not created:
+    #     return
+
+    for team in instance.teams_in.all():
         TournamentTeamInfo.objects.create(team=team, tournament=instance)
 
 
-# post_save.connect(create_tournament_team_info, sender=Tournament)
+post_save.connect(create_tournament_team_info, sender=Tournament)
 
 

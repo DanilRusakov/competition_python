@@ -41,7 +41,6 @@ def tournament_single(request, id):
                 current_match.team_2_goals = int(team_2_goals)
                 current_match.status = int(match_status)
                 current_match.save()
-
         update_tournament_team_info(id)
 
     if Tournament.objects.filter(pk=id).exists() is not True:
@@ -49,9 +48,7 @@ def tournament_single(request, id):
     else:
         tournament = Tournament.objects.get(pk=id)
         teams_statistics = TournamentTeamInfo.objects.filter(tournament=id).order_by('-points')
-        json_dec = json.decoder.JSONDecoder()
-        teams_ids = json_dec.decode(tournament.teams)
-        teams_list = Team.objects.filter(pk__in=teams_ids)
+        teams_list = tournament.teams_in.all()
         match_list = Match.objects.filter(tournament=id)
 
         context = {
